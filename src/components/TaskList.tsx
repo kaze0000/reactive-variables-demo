@@ -3,19 +3,25 @@ import { Task } from "../graphql/types";
 import { priorityTasksVar } from "../graphql/apollo/cache";
 import { PriorityTaskList } from "./PriorityTaskList";
 import { gql, useQuery } from "@apollo/client";
+import { useFetch_All_TasksQuery } from "../graphql/generated";
 
-const FETCH_ALL_TASKS = gql`
-  query FetchAllTasks {
-    tasks {
-      id
-      title
-      content
-    }
-  }
-`;
+// const FETCH_ALL_TASKS = gql`
+//   query FetchAllTasks {
+//     tasks {
+//       id
+//       title
+//       content
+//     }
+//   }
+// `;
 
 export const TaskList: FC = () => {
-  const { data } = useQuery(FETCH_ALL_TASKS);
+  // const { data } = useQuery(FETCH_ALL_TASKS);
+  const { data, loading, error } = useFetch_All_TasksQuery();
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
+
   const addToPriorityTasks = (task: Task) => {
     const newPriorityTasks = [...priorityTasksVar(), task];
 
@@ -37,18 +43,21 @@ export const TaskList: FC = () => {
           </tr>
         </thead>
         <tbody>
-          {data?.tasks.map((task: Task) => (
-            <tr key={task.id}>
-              <td>{task.id}</td>
-              <td>{task.title}</td>
-              <td>{task.content}</td>
-              <td>
-                <button onClick={() => addToPriorityTasks(task)}>
-                  優先タスクに追加
-                </button>
-              </td>
-            </tr>
-          ))}
+          {data?.tasks?.map((task) => {
+            if (!task) return null;
+            return (
+              <tr key={task.id}>
+                <td>{task.id}</td>
+                <td>{task.title}</td>
+                <td>{task.content}</td>
+                <td>
+                  <button onClick={() => addToPriorityTasks(task)}>
+                    優先タスクに追加
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

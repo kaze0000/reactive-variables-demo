@@ -1,0 +1,7 @@
+query Fetch_All_Tasks {
+  tasks {
+    id
+    title
+    content
+  }
+}
